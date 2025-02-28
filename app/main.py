@@ -40,7 +40,7 @@ if prompt := st.chat_input("Escribe tu pregunta:"):
     with st.spinner("El agente está pensando..."):
         try:
             response = requests.post(
-                "http://localhost:8000/pydantic-agent",  # URL de tu API
+                "https://docente.tecmilab.com.mx/pydantic-agent",  # URL de tu API
                 json={
                     "message": prompt,
                     "session_id": st.session_state.session_id  # Enviar el session_id
