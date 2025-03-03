@@ -40,12 +40,19 @@ if prompt := st.chat_input("Escribe tu pregunta:"):
     with st.spinner("El agente está pensando..."):
         try:
             response = requests.post(
-                "https://docente.tecmilab.com.mx/pydantic-agent",  # URL de tu API
+                "https://acodoc2.tecmilab.com.mx/pydantic-agent",  # URL de tu API
                 json={
                     "message": prompt,
                     "session_id": st.session_state.session_id  # Enviar el session_id
                 }
             )
+            # response = requests.post(
+            #     "http://127.0.0.1:8000/pydantic-agent",  # URL de tu API LOCAL
+            #     json={
+            #         "message": prompt,
+            #         "session_id": st.session_state.session_id  # Enviar el session_id
+            #     }
+            # )
             if response.status_code == 200:
                 agent_response = response.json()["response"]
             else:
