@@ -4,7 +4,7 @@ import time
 import uuid  # Para generar un session_id único
 
 # Título de la aplicación
-st.title("Chatbot con Agente de IA")
+st.title("Acompañamiento para el docente")
 
 # Generar un session_id único al cargar la página o hacer refresh
 if "session_id" not in st.session_state:
