@@ -40,7 +40,7 @@ if prompt := st.chat_input("Escribe tu pregunta:"):
     with st.spinner("El agente está pensando..."):
         try:
             response = requests.post(
-                "https://acodoc2.tecmilab.com.mx/pydantic-agent",  # URL de tu API
+                "http://demo-acompanamiento.southcentralus.azurecontainer.io/bot",  # URL de tu API
                 json={
                     "message": prompt,
                     "session_id": st.session_state.session_id  # Enviar el session_id
@@ -54,7 +54,7 @@ if prompt := st.chat_input("Escribe tu pregunta:"):
             #     }
             # )
             if response.status_code == 200:
-                agent_response = response.json()["response"]
+                agent_response = response.json()["message"]
             else:
                 agent_response = "Error al conectar con el agente."
         except Exception as e:
