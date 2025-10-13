@@ -49,7 +49,6 @@ if not st.session_state[EMAIL_KEY]:
             else:
                 st.session_state[EMAIL_KEY] = email.strip()
                 st.success("¡Listo! Ya puedes chatear.")
-                st.rerun()  # forzar que aparezca el chat habilitado
 
     st.stop()  # <-- IMPORTANTE: evita renderizar el resto hasta que haya correo
 
