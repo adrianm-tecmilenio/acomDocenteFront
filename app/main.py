@@ -81,7 +81,7 @@ if prompt := st.chat_input("Escribe tu pregunta:"):
                 json={
                     "message": prompt,
                     "email": st.session_state[EMAIL_KEY],
-                    "is_test": True # Marca como prueba para no guardar en base de datos
+                    "is_test": False # Marca como prueba para no guardar en base de datos
                 },
                 timeout=60,
             )
