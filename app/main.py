@@ -11,6 +11,7 @@ st.title("Acompañamiento para el docente")
 EMAIL_KEY = "user_email"
 SESSION_KEY = "session_id"
 MSGS_KEY = "messages"
+HISTORY_URL = "http://demo-acompanamiento.southcentralus.azurecontainer.io/history"
 
 # ---------- Helpers ----------
 def is_valid_email(email: str) -> bool:
@@ -48,6 +49,58 @@ if not st.session_state[EMAIL_KEY]:
                 st.error("Por favor ingresa un correo válido.")
             else:
                 st.session_state[EMAIL_KEY] = email.strip()
+
+                # Intentar obtener el historial de los últimos mensajes para este correo
+                try:
+                    with st.spinner("Cargando historial..."):
+                        resp = requests.post(
+                            HISTORY_URL,
+                            json={"email": st.session_state[EMAIL_KEY]},
+                            timeout=30,
+                        )
+                    if resp.status_code == 200:
+                        # La API retorna la estructura:
+                        # { "email": ..., "limit": 20, "history": [ {"sent_by": "user"|"bot", "message": "...", "created_at": "..."}, ... ] }
+                        payload = resp.json()
+                        msgs_raw = None
+                        if isinstance(payload, dict):
+                            msgs_raw = payload.get("history") or payload.get("messages")
+                        elif isinstance(payload, list):
+                            msgs_raw = payload
+
+                        if isinstance(msgs_raw, list):
+                            # Tomar solo los últimos 20 mensajes
+                            msgs_slice = msgs_raw[-20:]
+                            # Mapear a formato {role, content}
+                            role_map = {"user": "user", "bot": "assistant", "assistant": "assistant", "system": "assistant"}
+                            valid_msgs = []
+                            for item in msgs_slice:
+                                if not isinstance(item, dict):
+                                    continue
+                                # Soportar dos posibles formas: sent_by/message o role/content
+                                if "role" in item and "content" in item:
+                                    role = str(item.get("role"))
+                                    content = item.get("content")
+                                else:
+                                    sent_by = str(item.get("sent_by", "")).lower()
+                                    role = role_map.get(sent_by, "assistant")
+                                    content = item.get("message")
+
+                                if content and isinstance(content, str):
+                                    valid_msgs.append({"role": role, "content": content})
+
+                            st.session_state[MSGS_KEY] = valid_msgs
+                            st.info(f"Se cargaron {len(valid_msgs)} mensajes de historial.")
+                        else:
+                            st.session_state[MSGS_KEY] = []
+                            st.info("No se encontró historial para este correo.")
+                    else:
+                        st.session_state[MSGS_KEY] = []
+                        st.warning(f"No se pudo cargar el historial (HTTP {resp.status_code}).")
+                except Exception as e:
+                    st.session_state[MSGS_KEY] = []
+                    st.warning(f"Error al cargar historial: {e}")
+
                 st.success("¡Listo! Ya puedes chatear.")
 
     st.stop()  # <-- IMPORTANTE: evita renderizar el resto hasta que haya correo
